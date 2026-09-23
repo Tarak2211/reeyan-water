@@ -9,6 +9,7 @@ const path        = require('path');
 
 const { PORT, NODE_ENV } = require('./config/env');
 const errorHandler = require('./middleware/errorHandler');
+const { startKeepAlive } = require('./utils/keepAlive');
 
 const customerRoutes    = require('./routes/customerRoutes');
 const deliveryBoyRoutes = require('./routes/deliveryBoyRoutes');
@@ -69,6 +70,7 @@ process.on('uncaughtException',  err => { console.error('Uncaught:', err.message
 app.listen(PORT, () => {
   console.log(`✅  Reeyan Mineral Water v2.0 — http://localhost:${PORT}`);
   console.log(`🔒  Helmet + RateLimit + HPP + Compression ACTIVE`);
+  startKeepAlive(); // prevents Render free tier from sleeping
 });
 
 module.exports = app;

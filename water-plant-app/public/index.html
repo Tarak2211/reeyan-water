@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>રીયાન મિનરલ વોટર — મેનેજમેન્ટ સિસ્ટમ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════ LOGIN SCREEN ══════════════════════════ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">💧</div>
+    <div class="login-brand">રીયાન મિનરલ વોટર</div>
+    <div class="login-sub">ડિલિવરી મેનેજમેન્ટ સિસ્ટમ</div>
+
+    <div class="form-group" style="margin-top:24px">
+      <label style="font-size:13px;font-weight:600;color:#374151">👤 યુઝર પસંદ કરો *</label>
+      <select id="login-user" class="form-control" style="margin-top:6px"
+        onchange="
+          var v = this.value;
+          var pg = document.getElementById('passGroup');
+          var pb = document.getElementById('login-pass');
+          if (v === 'admin') {
+            pg.style.display = 'block';
+            pb.focus();
+          } else {
+            pg.style.display = 'none';
+            pb.value = '';
+          }
+        ">
+        <option value="">— પસંદ કરો —</option>
+        <option value="admin">� એડમિન (Admin)</option>
+        <option value="sameer">🚚 સમીર</option>
+        <option value="kamlesh">🚚 કમલેશ</option>
+        <option value="rohan">🚚 રોહન</option>
+        <option value="vinay">🚚 વિનય</option>
+        <option value="bhavesh">🚚 ભાવેશ</option>
+      </select>
+    </div>
+
+    <!-- Password field — only for Admin -->
+    <div class="form-group" id="passGroup" style="display:none;margin-top:14px">
+      <label style="font-size:13px;font-weight:600;color:#374151">🔑 Admin પાસવર્ડ *</label>
+      <input type="password" id="login-pass" class="form-control" style="margin-top:6px"
+        placeholder="પાસવર્ડ દાખલ કરો"
+        onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+
+    <button class="btn btn-primary btn-full"
+      style="margin-top:20px;padding:14px;font-size:15px;border-radius:12px"
+      onclick="doLogin()">
+      પ્રવેશ કરો →
+    </button>
+
+    <div style="margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;font-size:12px;color:#374151">
+      💡 <strong>નોંધ:</strong><br>
+      • <b>સ્ટાફ</b> — નામ select → ક્લિક → ડિલિવરી ફોર્મ (password નહીં)<br>
+      • <b>Admin</b> — password → Dashboard
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ SIDEBAR ══════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">💧</div>
+    <div class="logo-text">
+      <span class="logo-name">રીયાન</span>
+      <span class="logo-sub">મિનરલ વોટર</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+      <span class="nav-icon">📊</span><span class="nav-label">ડેશબોર્ડ</span>
+    </a>
+    <a class="nav-item admin-only" data-page="route" onclick="showPage('route')">
+      <span class="nav-icon">🗺️</span><span class="nav-label">રૂટ અને જમા</span>
+    </a>
+    <a class="nav-item" data-page="delivery" onclick="showPage('delivery')">
+      <span class="nav-icon">🚚</span><span class="nav-label">ડિલિવરી એન્ટ્રી</span>
+    </a>
+    <a class="nav-item admin-only" data-page="customers" onclick="showPage('customers')">
+      <span class="nav-icon">👥</span><span class="nav-label">ગ્રાહકો</span>
+    </a>
+    <a class="nav-item admin-only" data-page="companies" onclick="showPage('companies')">
+      <span class="nav-icon">🏢</span><span class="nav-label">કંપની ક્લાયન્ટ</span>
+    </a>
+    <a class="nav-item admin-only" data-page="deliveryboys" onclick="showPage('deliveryboys')">
+      <span class="nav-icon">🧑‍💼</span><span class="nav-label">ડિલિવરી સ્ટાફ</span>
+    </a>
+    <a class="nav-item admin-only" data-page="bills" onclick="showPage('bills')">
+      <span class="nav-icon">🧾</span><span class="nav-label">બિલ અને રસીદ</span>
+    </a>
+    <a class="nav-item admin-only" data-page="reports" onclick="showPage('reports')">
+      <span class="nav-icon">📈</span><span class="nav-label">રિપોર્ટ</span>
+    </a>
+    <a class="nav-item admin-only" data-page="settings" onclick="showPage('settings')">
+      <span class="nav-icon">⚙️</span><span class="nav-label">સેટિંગ્સ</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar">અ</div>
+      <div>
+        <div class="user-name" id="sidebarName">એડમિન</div>
+        <div class="user-role" id="sidebarRole">સુપર એડમિન</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 8px" onclick="doLogout()">બહાર</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════ MAIN ══════════════════════════════════ -->
+<main class="main-content" id="mainContent" style="display:none">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="page-title" id="pageTitle">ડેશબોર્ડ</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="topbarDate"></div>
+      <div class="notif-btn">🔔</div>
+    </div>
+  </header>
+
+  <!-- ─── DASHBOARD ──────────────────────────────────────────── -->
+  <section id="page-dashboard" class="page active">
+    <div class="welcome-banner">
+      <div>
+        <h2 class="welcome-title" id="welcomeMsg">નમસ્તે! 👋</h2>
+        <p class="welcome-sub">આજે રીયાન મિનરલ વોટરમાં શું થઈ રહ્યું છે.</p>
+      </div>
+      <button class="btn btn-primary" onclick="showPage('delivery')">+ નવી ડિલિવરી એન્ટ્રી</button>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon">💧</div>
+        <div class="stat-info"><div class="stat-value" id="stat-delivered">0</div><div class="stat-label">આજે પહોંચાડેલ જગ</div></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">🍶</div>
+        <div class="stat-info"><div class="stat-value" id="stat-bottles">0</div><div class="stat-label">આજે પહોંચાડેલ બોટલ</div></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon">₹</div>
+        <div class="stat-info"><div class="stat-value" id="stat-revenue">₹0</div><div class="stat-label">આજની આવક</div></div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-info"><div class="stat-value" id="stat-pending">₹0</div><div class="stat-label">કુલ બાકી રકમ</div></div>
+      </div>
+    </div>
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">તાજેતરની ડિલિવરી</h3>
+          <a class="card-link" onclick="showPage('delivery')">બધું જુઓ →</a>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>ગ્રાહક</th><th>પ્રકાર</th><th>જગ/બોટલ</th><th>રકમ</th><th>સ્થિતિ</th></tr></thead>
+            <tbody id="dash-recent-body"><tr><td colspan="5" class="empty-row">આજે કોઈ ડિલિવરી નથી</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">બાકી રકમ (ટોચના)</h3>
+          <a class="card-link" onclick="showPage('customers')">બધું જુઓ →</a>
+        </div>
+        <div id="pending-list" class="pending-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ROUTE & JAMA ────────────────────────────────────────── -->
+  <section id="page-route" class="page">
+    <div class="page-header">
+      <h2 class="page-heading">🗺️ રૂટ અને જમા (Deposit)</h2>
+      <button class="btn btn-primary" onclick="openModal('dispatchModal')">+ વાહન ડિસ્પેચ કરો</button>
+    </div>
+    <!-- Active Routes -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3 class="card-title">🚚 ચાલુ રૂટ</h3></div>
+      <div id="active-routes" class="route-list"></div>
+    </div>
+    <!-- Jama (Deposit) Section -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">💰 જમા એન્ટ્રી (Deposit Entry)</h3>
+        <button class="btn btn-primary btn-sm" onclick="openModal('jamaModal')">+ જમા ઉમેરો</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>તારીખ</th><th>સ્ટાફ</th><th>રૂટ</th><th>ભરેલ (ગયા)</th><th>ખાલી (પરત)</th><th>રોકડ જમા</th><th>સ્થિતિ</th><th>ક્રિયા</th></tr></thead>
+          <tbody id="jama-body"><tr><td colspan="8" class="empty-row">કોઈ જમા નથી</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DELIVERY ENTRY ──────────────────────────────────────── -->
+  <section id="page-delivery" class="page">
+    <div class="page-header">
+      <h2 class="page-heading">🚚 ડિલિવરી એન્ટ્રી</h2>
+    </div>
+    <div class="delivery-layout">
+      <div class="card delivery-form-card">
+        <h3 class="card-title" style="margin-bottom:20px">📋 એન્ટ્રી વિગત</h3>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>ગ્રાહક / કંપની *</label>
+            <select id="entry-customer" onchange="onCustomerSelect()" class="form-control">
+              <option value="">— ગ્રાહક પસંદ કરો —</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>ડિલિવરી સ્ટાફ *</label>
+            <select id="entry-deliveryboy" class="form-control">
+              <option value="">— સ્ટાફ પસંદ કરો —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>ઉત્પાદન પ્રકાર *</label>
+            <select id="entry-product" class="form-control" onchange="onProductChange()">
+              <option value="">— પ્રકાર પસંદ કરો —</option>
+              <option value="jug_chilled">💧 જગ — ઠંડો (Chilled)</option>
+              <option value="bottle_hot">🍶 બોટલ — ગરમ (Hot)</option>
+              <option value="bottle_cold">🍶 બોટલ — ઠંડી (Cold)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>તારીખ</label>
+            <input type="date" id="entry-date" class="form-control" />
+          </div>
+        </div>
+
+        <!-- AI Image Upload -->
+        <div class="upload-zone" onclick="document.getElementById('jugImage').click()">
+          <div class="upload-icon">📸</div>
+          <div class="upload-title">ડિલિવરી ફોટો અપલોડ કરો</div>
+          <div class="upload-sub">AI આપોઆપ ભરેલ અને ખાલી જગ ગણશે</div>
+          <input type="file" id="jugImage" accept="image/*" style="display:none" onchange="previewImage(event)" />
+        </div>
+        <div id="imagePreviewWrap" style="display:none;margin-top:12px">
+          <img id="imagePreview" style="width:100%;border-radius:12px;max-height:180px;object-fit:cover" />
+          <div class="ai-result-bar" id="aiResultBar" style="display:none">
+            <span>🤖 AI પરિણામ:</span>
+            <span class="ai-badge blue">ભરેલ: <b id="ai-full">0</b></span>
+            <span class="ai-badge green">ખાલી: <b id="ai-empty">0</b></span>
+            <span class="ai-badge" id="ai-conf-badge">વિશ્વાસ: <b id="ai-conf">—</b></span>
+          </div>
+        </div>
+
+        <div class="manual-counts">
+          <h4 style="margin-bottom:12px;color:#374151;font-weight:600">સંખ્યા <span style="color:#94a3b8;font-weight:400;font-size:12px">(AI ઓવરરાઇડ)</span></h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>✅ પહોંચાડ્યા</label>
+              <input type="number" id="entry-delivered" class="form-control highlight-blue" min="0" value="0" oninput="recalcEntry()" />
+            </div>
+            <div class="form-group">
+              <label>🔄 ખાલી પરત</label>
+              <input type="number" id="entry-returned" class="form-control highlight-green" min="0" value="0" oninput="recalcJama()" />
+            </div>
+            <div class="form-group">
+              <label>🪣 જમા જગ (Deposit)</label>
+              <input type="number" id="entry-jama" class="form-control" style="border-color:#f59e0b;background:#fffbeb" min="0" value="0" oninput="recalcJama()" />
+            </div>
+            <div class="form-group">
+              <label>📦 જમા બાકી (Balance)</label>
+              <input type="number" id="entry-jama-balance" class="form-control" style="background:#f8fafc;color:#64748b" readonly value="0" />
+            </div>
+          </div>
+          <!-- Jama Summary Bar -->
+          <div id="jamaBar" style="display:none;margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#92400e">
+              <span>🪣 જમા સારાંશ</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;text-align:center">
+              <div style="background:#fff;border-radius:8px;padding:8px;border:1px solid #fcd34d">
+                <div style="font-size:18px;font-weight:800;color:#d97706" id="jama-out-show">0</div>
+                <div style="font-size:11px;color:#92400e;font-weight:600">ગયા (Out)</div>
+              </div>
+              <div style="background:#fff;border-radius:8px;padding:8px;border:1px solid #fcd34d">
+                <div style="font-size:18px;font-weight:800;color:#16a34a" id="jama-ret-show">0</div>
+                <div style="font-size:11px;color:#15803d;font-weight:600">પરત (Return)</div>
+              </div>
+              <div style="background:#fff;border-radius:8px;padding:8px;border:1px solid #fcd34d">
+                <div style="font-size:18px;font-weight:800;color:#dc2626" id="jama-bal-show">0</div>
+                <div style="font-size:11px;color:#b91c1c;font-weight:600">બાકી (Balance)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cost-preview">
+          <div class="cost-row"><span>દર</span><span id="preview-rate">₹0.00</span></div>
+          <div class="cost-row"><span>પહોંચાડ્યા</span><span id="preview-qty">0</span></div>
+          <div class="cost-row total"><span>આજનો ચાર્જ</span><span id="preview-total">₹0.00</span></div>
+          <div class="cost-row pending"><span>નવી બાકી રકમ</span><span id="preview-pending">₹0.00</span></div>
+        </div>
+
+        <div class="form-group" style="margin-top:16px">
+          <label>નોંધ (વૈકલ્પિક)</label>
+          <textarea id="entry-notes" class="form-control" rows="2" placeholder="ડિલિવરી સંબંધિત નોંધ…"></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="submitEntry()" style="margin-top:16px">
+          ✅ એન્ટ્રી કન્ફર્મ કરો અને બિલ બનાવો
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">આજની એન્ટ્રી</h3>
+          <span class="badge-count" id="today-count">0</span>
+        </div>
+        <div id="today-entries" class="today-entries-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CUSTOMERS ───────────────────────────────────────────── -->
+  <section id="page-customers" class="page">
+    <div class="page-header">
+      <h2 class="page-heading">ગ્રાહકો</h2>
+      <button class="btn btn-primary" onclick="openModal('addCustomerModal')">+ નવો ગ્રાહક</button>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <input class="search-input" type="text" placeholder="🔍  નામ અથવા ફોન શોધો…" oninput="filterCustomers(this.value)" />
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>નામ</th><th>ફોન</th><th>સરનામું</th><th>જગ દર</th><th>બોટલ દર</th><th>બાકી</th><th>ક્રિયા</th></tr></thead>
+          <tbody id="customers-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COMPANIES ───────────────────────────────────────────── -->
+  <section id="page-companies" class="page">
+    <div class="page-header">
+      <h2 class="page-heading">🏢 કંપની ક્લાયન્ટ</h2>
+      <button class="btn btn-primary" onclick="openModal('addCompanyModal')">+ કંપની ઉમેરો</button>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <label style="font-weight:600">કંપની ફિલ્ટર:</label>
+        <select id="company-filter" class="form-control" style="width:280px" onchange="filterByCompany()">
+          <option value="">— બધી કંપની —</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>કંપની</th><th>સંપર્ક</th><th>ફોન</th><th>જગ દર</th><th>બોટલ દર</th><th>બાકી</th><th>ક્રિયા</th></tr></thead>
+          <tbody id="companies-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STAFF ────────────────────────────────────────────────── -->
+  <section id="page-deliveryboys" class="page">
+    <div class="page-header">
+      <h2 class="page-heading">ડિલિવરી સ્ટાફ</h2>
+      <button class="btn btn-primary" onclick="openModal('addStaffModal')">+ સ્ટાફ ઉમેરો</button>
+    </div>
+    <div class="staff-grid" id="staff-grid"></div>
+  </section>
+
+  <!-- ─── BILLS ────────────────────────────────────────────────── -->
+  <section id="page-bills" class="page">
+    <div class="page-header">
+      <h2 class="page-heading">બિલ અને રસીદ</h2>
+    </div>
+    <div class="card">
+      <div class="card-header" style="gap:12px;flex-wrap:wrap">
+        <input class="search-input" type="text" placeholder="🔍  બિલ નં. અથવા ગ્રાહક…" oninput="filterBills(this.value)" />
+        <select id="bill-month-filter" class="form-control" style="width:180px" onchange="filterBills('')">
+          <option value="">— બધા મહિના —</option>
+        </select>
+        <button class="btn btn-green btn-sm" onclick="generateMonthlyBills()">📄 માસિક બિલ બનાવો</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>બિલ નં.</th><th>પ્રકાર</th><th>તારીખ</th><th>ગ્રાહક</th><th>જગ/બોટલ</th><th>રકમ</th><th>બાકી</th><th>WA</th><th>ક્રિયા</th></tr></thead>
+          <tbody id="bills-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── REPORTS ──────────────────────────────────────────────── -->
+  <section id="page-reports" class="page">
+    <div class="page-header"><h2 class="page-heading">રિપોર્ટ</h2></div>
+    <div class="reports-tabs">
+      <button class="tab-btn active" onclick="switchTab('daily',event)">📅 દૈનિક સારાંશ</button>
+      <button class="tab-btn" onclick="switchTab('ledger',event)">📒 ખાતાવહી</button>
+      <button class="tab-btn" onclick="switchTab('monthly',event)">📆 માસિક</button>
+    </div>
+    <div id="tab-daily" class="tab-content active">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <label style="font-weight:600">તારીખ:</label>
+          <input type="date" id="report-date" class="form-control" style="width:200px" onchange="loadDailyReport()" />
+        </div>
+      </div>
+      <div class="stats-grid" id="report-stats"></div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><h3 class="card-title">ડિલિવરીની વિગત</h3></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>ગ્રાહક</th><th>સ્ટાફ</th><th>ઉત્પાદન</th><th>પહોંચાડ્યા</th><th>રકમ</th></tr></thead>
+            <tbody id="report-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div id="tab-ledger" class="tab-content">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <select id="ledger-customer" class="form-control" style="width:280px" onchange="loadLedger()">
+            <option value="">— ગ્રાહક / કંપની પસંદ કરો —</option>
+          </select>
+        </div>
+      </div>
+      <div id="ledger-content"></div>
+    </div>
+    <div id="tab-monthly" class="tab-content">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header" style="gap:12px">
+          <label style="font-weight:600">મહિનો:</label>
+          <input type="month" id="monthly-month" class="form-control" style="width:200px" onchange="loadMonthlyReport()" />
+        </div>
+      </div>
+      <div id="monthly-content"></div>
+    </div>
+  </section>
+
+  <!-- ─── SETTINGS PAGE ──────────────────────────────────────── -->
+  <section id="page-settings" class="page">
+    <div class="page-header">
+      <h2 class="page-heading">⚙️ સેટિંગ્સ</h2>
+    </div>
+
+    <!-- WhatsApp Setup Card -->
+    <div class="card" style="max-width:600px;margin-bottom:24px">
+      <div class="card-header">
+        <h3 class="card-title">📲 WhatsApp API સેટ કરો</h3>
+        <span id="wa-status-badge" class="badge badge-warning">⏳ Configure કરો</span>
+      </div>
+      <div class="modal-body" style="padding:20px">
+
+        <!-- Step guide -->
+        <div class="info-box" style="margin-bottom:20px">
+          <strong>📋 Credentials ક્યાંથી મળે?</strong>
+          <ol style="margin-top:8px;padding-left:18px;font-size:12px;line-height:1.8">
+            <li><a href="https://developers.facebook.com" target="_blank" style="color:var(--blue)">developers.facebook.com</a> ખોલો</li>
+            <li><strong>My Apps → Create App → Business</strong> પસંદ કરો</li>
+            <li>App બન્યા પછી <strong>WhatsApp → Setup</strong> click કરો</li>
+            <li><strong>Temporary Access Token</strong> copy કરો</li>
+            <li><strong>Phone Number ID</strong> copy કરો (same page)</li>
+            <li>નીચે paste કરો → Save કરો → Done! ✅</li>
+          </ol>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>🔑 WhatsApp Access Token *</label>
+            <input type="password" id="wa-token" class="form-control"
+              placeholder="EAAxxxxxxxxxxxxx..." autocomplete="off" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Meta Developer Console → WhatsApp → API Setup → Temporary Token</div>
+          </div>
+          <div class="form-group full">
+            <label>📱 Phone Number ID *</label>
+            <input type="text" id="wa-phone-id" class="form-control"
+              placeholder="1234567890123456" autocomplete="off" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Meta Developer Console → WhatsApp → API Setup → Phone Number ID</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="saveWASettings()" style="margin-top:16px">
+          💾 Credentials સાચવો
+        </button>
+
+        <!-- Test button -->
+        <div id="wa-test-section" style="display:none;margin-top:12px">
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="tel" id="wa-test-phone" class="form-control" placeholder="Test phone (91xxxxxxxxxx)" style="flex:1" />
+            <button class="btn btn-green" onclick="testWhatsApp()">📲 Test Send</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Token save કર્યા પછી test message મોકલો</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Settings Card -->
+    <div class="card" style="max-width:600px">
+      <div class="card-header"><h3 class="card-title">🏢 બિઝનેસ માહિતી</h3></div>
+      <div class="modal-body" style="padding:20px">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>કંપની નામ</label>
+            <input type="text" id="set-app-name" class="form-control" placeholder="રીયાન મિનરલ વોટર" value="રીયાન મિનરલ વોટર" />
+          </div>
+          <div class="form-group full">
+            <label>સરનામું</label>
+            <input type="text" id="set-app-address" class="form-control" placeholder="૧૨૩ વોટર સ્ટ્રીટ, અમદાવાદ" value="૧૨૩ વોટર સ્ટ્રીટ, અમદાવાદ" />
+          </div>
+          <div class="form-group">
+            <label>ફોન</label>
+            <input type="tel" id="set-app-phone" class="form-control" placeholder="+91 98765 43210" value="+91 98765 43210" />
+          </div>
+          <div class="form-group">
+            <label>GSTIN (optional)</label>
+            <input type="text" id="set-app-gstin" class="form-control" placeholder="27AABCU9603R1ZX" />
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="saveAppSettings()" style="margin-top:16px">💾 સાચવો</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════ MODALS ════════════════════════════════ -->
+
+<!-- Dispatch Modal -->
+<div class="modal-overlay" id="dispatchModal">
+  <div class="modal">
+    <div class="modal-header"><h3>🚚 વાહન ડિસ્પેચ</h3><button class="modal-close" onclick="closeModal('dispatchModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>સ્ટાફ *</label>
+          <select id="disp-staff" class="form-control"><option value="">— સ્ટાફ —</option></select>
+        </div>
+        <div class="form-group full">
+          <label>રૂટ નામ *</label>
+          <input type="text" id="disp-route" class="form-control" placeholder="દા.ત. ઉત્તર વિસ્તાર" />
+        </div>
+        <div class="form-group">
+          <label>💧 ભરેલ જગ</label>
+          <input type="number" id="disp-full-jug" class="form-control" min="0" value="0" />
+        </div>
+        <div class="form-group">
+          <label>🍶 બોટલ (ગ.)</label>
+          <input type="number" id="disp-bottle-hot" class="form-control" min="0" value="0" />
+        </div>
+        <div class="form-group">
+          <label>🍶 બોટલ (ઠ.)</label>
+          <input type="number" id="disp-bottle-cold" class="form-control" min="0" value="0" />
+        </div>
+        <div class="form-group">
+          <label>ખાલી જગ (સ્ટૉક)</label>
+          <input type="number" id="disp-empty-jug" class="form-control" min="0" value="0" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('dispatchModal')">રદ</button>
+      <button class="btn btn-primary" onclick="saveDispatch()">ડિસ્પેચ કરો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Jama Modal -->
+<div class="modal-overlay" id="jamaModal">
+  <div class="modal">
+    <div class="modal-header"><h3>💰 જમા એન્ટ્રી</h3><button class="modal-close" onclick="closeModal('jamaModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>સ્ટાફ *</label>
+          <select id="jama-staff" class="form-control"><option value="">— સ્ટાફ —</option></select>
+        </div>
+        <div class="form-group full">
+          <label>રૂટ</label>
+          <input type="text" id="jama-route" class="form-control" placeholder="રૂટ નામ" />
+        </div>
+        <div class="form-group">
+          <label>💧 ભરેલ (ગ.) — Dispatched</label>
+          <input type="number" id="jama-full-out" class="form-control" min="0" value="0" />
+        </div>
+        <div class="form-group">
+          <label>♻️ ખાલી (પ.) — Returned</label>
+          <input type="number" id="jama-empty-ret" class="form-control" min="0" value="0" />
+        </div>
+        <div class="form-group full">
+          <label>💵 રોકડ જમા (₹)</label>
+          <input type="number" id="jama-cash" class="form-control" min="0" value="0" />
+        </div>
+        <div class="form-group full">
+          <label>📸 જમા ફોટો (ચુકવણી ચકાસણી)</label>
+          <div class="upload-zone" style="padding:16px" onclick="document.getElementById('jamaPhoto').click()">
+            <div class="upload-icon" style="font-size:22px">📷</div>
+            <div class="upload-sub">ગ્રાહક રોકડ આપે ત્યારે ફોટો લો</div>
+            <input type="file" id="jamaPhoto" accept="image/*" style="display:none" onchange="previewJamaPhoto(event)" />
+          </div>
+          <div id="jamaPhotoPreview" style="display:none;margin-top:8px">
+            <img id="jamaPhotoImg" style="width:100%;border-radius:10px;max-height:150px;object-fit:cover" />
+            <div style="font-size:11px;color:var(--green);margin-top:4px;font-weight:600">✅ ફોટો સ્વીકૃત</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('jamaModal')">રદ</button>
+      <button class="btn btn-primary" onclick="saveJama()">જમા સાચવો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Customer -->
+<div class="modal-overlay" id="addCustomerModal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="custModalTitle">નવો ગ્રાહક ઉમેરો</h3><button class="modal-close" onclick="closeModal('addCustomerModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>પૂરું નામ *</label><input type="text" id="c-name" class="form-control" placeholder="દા.ત. રમેશ કુમાર" /></div>
+        <div class="form-group"><label>ફોન *</label><input type="tel" id="c-phone" class="form-control" placeholder="9876543210" /></div>
+        <div class="form-group"><label>💧 જગ દર (₹)</label><input type="number" id="c-rate-jug" class="form-control" placeholder="50" /></div>
+        <div class="form-group"><label>🍶 બોટલ ગ. (₹)</label><input type="number" id="c-rate-bottle-hot" class="form-control" placeholder="15" /></div>
+        <div class="form-group"><label>🍶 બોટલ ઠ. (₹)</label><input type="number" id="c-rate-bottle-cold" class="form-control" placeholder="15" /></div>
+        <div class="form-group full"><label>સરનામું *</label><textarea id="c-address" class="form-control" rows="2" placeholder="પૂરું સરનામું…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addCustomerModal')">રદ</button>
+      <button class="btn btn-primary" id="custSaveBtn" onclick="saveCustomer()">સાચવો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Company -->
+<div class="modal-overlay" id="addCompanyModal">
+  <div class="modal">
+    <div class="modal-header"><h3>🏢 કંપની ઉમેરો</h3><button class="modal-close" onclick="closeModal('addCompanyModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>કંપનીનું નામ *</label><input type="text" id="co-name" class="form-control" placeholder="દા.ત. લક્ષ્મી Pvt. Ltd." /></div>
+        <div class="form-group"><label>સંપર્ક વ્યક્તિ</label><input type="text" id="co-contact" class="form-control" placeholder="સંપર્ક નામ" /></div>
+        <div class="form-group"><label>ફોન *</label><input type="tel" id="co-phone" class="form-control" placeholder="9876543210" /></div>
+        <div class="form-group"><label>💧 જગ દર (₹)</label><input type="number" id="co-rate-jug" class="form-control" placeholder="45" /></div>
+        <div class="form-group"><label>🍶 બોટલ ગ. (₹)</label><input type="number" id="co-rate-bottle-hot" class="form-control" placeholder="12" /></div>
+        <div class="form-group"><label>🍶 બોટલ ઠ. (₹)</label><input type="number" id="co-rate-bottle-cold" class="form-control" placeholder="12" /></div>
+        <div class="form-group full"><label>સરનામું</label><textarea id="co-address" class="form-control" rows="2" placeholder="કંપની સરનામું…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addCompanyModal')">રદ</button>
+      <button class="btn btn-primary" onclick="saveCompany()">સાચવો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Staff -->
+<div class="modal-overlay" id="addStaffModal">
+  <div class="modal">
+    <div class="modal-header"><h3>ડિલિવરી સ્ટાફ ઉમેરો</h3><button class="modal-close" onclick="closeModal('addStaffModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>પૂરું નામ *</label><input type="text" id="s-name" class="form-control" placeholder="દા.ત. સુરેશ પટેલ" /></div>
+        <div class="form-group full"><label>ફોન *</label><input type="tel" id="s-phone" class="form-control" placeholder="9876543210" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addStaffModal')">રદ</button>
+      <button class="btn btn-primary" onclick="saveStaff()">સ્ટાફ સાચવો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bill Receipt Modal -->
+<div class="modal-overlay" id="billModal">
+  <div class="modal modal-wide">
+    <div class="modal-header"><h3>🧾 ડિલિવરી રસીદ</h3><button class="modal-close" onclick="closeModal('billModal')">✕</button></div>
+    <div class="modal-body" id="bill-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('billModal')">બંધ</button>
+      <button class="btn btn-green" onclick="printBill()">🖨️ પ્રિન્ટ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div class="modal-header"><h3>💰 ચુકવણી નોંધો</h3><button class="modal-close" onclick="closeModal('paymentModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="payment-customer-info" style="margin-bottom:16px"></div>
+      <!-- Cash Photo Verification -->
+      <div class="info-box" style="margin-bottom:16px">
+        <b>📸 ચુકવણી ફોટો ચકાસણી</b><br>
+        <span style="font-size:12px">ગ્રાહક રોકડ આપે ત્યારે ફોટો લો — એડમિન ચકાસણી માટે</span>
+        <div class="upload-zone" style="padding:14px;margin-top:10px" onclick="document.getElementById('cashPhoto').click()">
+          <div class="upload-sub">📷 ચુકવણી ફોટો અહીં ઉમેરો</div>
+          <input type="file" id="cashPhoto" accept="image/*" style="display:none" onchange="previewCashPhoto(event)" />
+        </div>
+        <div id="cashPhotoPreview" style="display:none;margin-top:8px">
+          <img id="cashPhotoImg" style="width:100%;border-radius:10px;max-height:120px;object-fit:cover" />
+          <div style="font-size:11px;color:var(--green);font-weight:600;margin-top:4px">✅ ફોટો સ્વીકૃત — ચકાસણી સફળ</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full"><label>રકમ (₹) *</label><input type="number" id="pay-amount" class="form-control" placeholder="500" /></div>
+        <div class="form-group full">
+          <label>ચુકવણી પ્રકાર</label>
+          <select id="pay-method" class="form-control">
+            <option value="CASH">રોકડ</option>
+            <option value="UPI">UPI</option>
+            <option value="BANK">બેંક ટ્રાન્સફર</option>
+            <option value="OTHER">અન્ય</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>નોંધ</label><input type="text" id="pay-note" class="form-control" placeholder="વૈકલ્પિક નોંધ…" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('paymentModal')">રદ</button>
+      <button class="btn btn-primary" onclick="savePayment()">ચુકવણી સાચવો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Jama Photo Verify Modal -->
+<div class="modal-overlay" id="verifyJamaModal">
+  <div class="modal">
+    <div class="modal-header"><h3>📸 જમા ચકાસણી</h3><button class="modal-close" onclick="closeModal('verifyJamaModal')">✕</button></div>
+    <div class="modal-body" id="verify-jama-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('verifyJamaModal')">બંધ</button>
+      <button class="btn btn-green" onclick="approveJama()">✅ મંજૂર કરો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Damaged/Lost Jug Modal -->
+<div class="modal-overlay" id="damagedModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚠️ ખોવાયેલ / તૂટેલ જગ</h3>
+      <button class="modal-close" onclick="closeModal('damagedModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="damaged-staff-label" style="font-weight:700;font-size:15px;color:var(--text);margin-bottom:16px"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>⚠️ પ્રકાર *</label>
+          <select id="damaged-type" class="form-control">
+            <option value="lost">🔍 ખોવાયેલ (Lost)</option>
+            <option value="broken">💔 તૂટેલ (Broken)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>🔢 સંખ્યા *</label>
+          <input type="number" id="damaged-count" class="form-control" min="1" value="1" />
+        </div>
+        <div class="form-group full">
+          <label>📝 નોંધ</label>
+          <textarea id="damaged-notes" class="form-control" rows="2" placeholder="ક્યાં ખોવાયું? કેવી રીતે તૂટ્યું?…"></textarea>
+        </div>
+      </div>
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 14px;margin-top:12px;font-size:12px;color:#b91c1c">
+        ⚠️ <strong>ચેતવણી:</strong> આ record admin ને show થશે.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('damagedModal')">રદ</button>
+      <button class="btn" style="background:#dc2626;color:white" onclick="saveDamaged()">⚠️ નોંધો</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

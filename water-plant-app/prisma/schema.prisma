@@ -1,0 +1,113 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STAFF)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model Customer {
+  id             String       @id @default(uuid())
+  name           String
+  phone          String       @unique
+  address        String
+  ratePerJug     Decimal      @db.Decimal(10, 2)
+  pendingBalance Decimal      @default(0) @db.Decimal(10, 2)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  dailyEntries   DailyEntry[]
+  bills          Bill[]
+  payments       Payment[]
+}
+
+model DeliveryBoy {
+  id           String       @id @default(uuid())
+  name         String
+  phone        String       @unique
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  dailyEntries DailyEntry[]
+}
+
+model DailyEntry {
+  id               String      @id @default(uuid())
+  entryDate        DateTime    @default(now())
+  customer         Customer    @relation(fields: [customerId], references: [id])
+  customerId       String
+  deliveryBoy      DeliveryBoy @relation(fields: [deliveryBoyId], references: [id])
+  deliveryBoyId    String
+  jugsDispatched   Int         @default(0)
+  jugsDelivered    Int         @default(0)
+  jugsReturned     Int         @default(0)
+  ratePerJug       Decimal     @db.Decimal(10, 2)
+  totalCost        Decimal     @db.Decimal(10, 2)
+  imageUrl         String?
+  aiRawResponse    String?
+  status           EntryStatus @default(PENDING)
+  notes            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  bill             Bill?
+}
+
+enum EntryStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Bill {
+  id             String     @id @default(uuid())
+  billNumber     String     @unique
+  customer       Customer   @relation(fields: [customerId], references: [id])
+  customerId     String
+  dailyEntry     DailyEntry @relation(fields: [dailyEntryId], references: [id])
+  dailyEntryId   String     @unique
+  billDate       DateTime   @default(now())
+  jugsDelivered  Int
+  ratePerJug     Decimal    @db.Decimal(10, 2)
+  amountDue      Decimal    @db.Decimal(10, 2)
+  pendingBefore  Decimal    @db.Decimal(10, 2)
+  pendingAfter   Decimal    @db.Decimal(10, 2)
+  pdfUrl         String?
+  whatsappSent   Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model Payment {
+  id          String      @id @default(uuid())
+  customer    Customer    @relation(fields: [customerId], references: [id])
+  customerId  String
+  amount      Decimal     @db.Decimal(10, 2)
+  method      PayMethod   @default(CASH)
+  note        String?
+  paidAt      DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+}
+
+enum PayMethod {
+  CASH
+  UPI
+  BANK_TRANSFER
+  OTHER
+}

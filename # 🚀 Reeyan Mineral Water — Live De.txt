@@ -65,7 +65,9 @@ Share this with the client! ✅
 - ✅ No sensitive data in frontend code
 - ✅ .env excluded from git
 
-
+## 💡 Admin Password
+Default: `reeyan2024`
+Change it in `public/app.js` line 7: `const ADMIN_PASSWORD = 'reeyan2024';`
 
 ## 📞 Support
 If any issue, check Railway logs in dashboard.
